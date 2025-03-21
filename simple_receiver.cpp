@@ -1,8 +1,6 @@
 #include <dbus/dbus.h>
 #include <iostream>
 
-#include "dBusConnection.h"
-
 DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *user_data) {
   DBusError err;
   int number;
@@ -29,7 +27,6 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
       return DBUS_HANDLER_RESULT_NEED_MEMORY;
     }
 
-    // Отправляем ответ
     if (!dbus_connection_send(conn, reply, NULL)) {
       dbus_message_unref(reply);
       return DBUS_HANDLER_RESULT_NEED_MEMORY;
@@ -45,21 +42,32 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
 }
 
 int main() {
+  DBusConnection *conn;
   DBusError err;
+
   dbus_error_init(&err);
 
-  DBusCppConnection conn;
+  conn = dbus_bus_get(DBUS_BUS_SESSION, &err);
+  if (dbus_error_is_set(&err)) {
+    std::cerr << "Connection Error: " << err.message << std::endl;
+    dbus_error_free(&err);
+    return 1;
+  }
 
-  int ret = dbus_bus_request_name(conn.get(), "com.example.MyService",
-                                  DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
-
+  int ret =
+      dbus_bus_request_name(conn, "com.example.MyService", DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
+  if (dbus_error_is_set(&err)) {
+    std::cerr << "Name Error: " << err.message << std::endl;
+    dbus_error_free(&err);
+    return 1;
+  }
   if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
     std::cerr << "Not Primary Owner" << std::endl;
     return 1;
   }
 
   DBusObjectPathVTable vtable = {NULL, &handle_message, NULL, NULL, NULL, NULL};
-  if (!dbus_connection_register_object_path(conn.get(), "/com/example/MyObject", &vtable, NULL)) {
+  if (!dbus_connection_register_object_path(conn, "/com/example/MyObject", &vtable, NULL)) {
     std::cerr << "Cannot register object path" << std::endl;
     return 1;
   }
@@ -67,9 +75,11 @@ int main() {
   std::cout << "Server is running... (Press Ctrl+C to exit)" << std::endl;
 
   while (true) {
-    dbus_connection_read_write_dispatch(conn.get(), 1000); // 1000 мс
+    dbus_connection_read_write_dispatch(conn, 1000); // 1000 мс
     std::cout << "Waiting for messages..." << std::endl;
   }
+
+  dbus_connection_unref(conn);
 
   return 0;
 }

@@ -10,7 +10,7 @@ class DBusCppMessageBase {
 public:
   virtual ~DBusCppMessageBase();
 
-protected:
+public:
   DBusMessage *get() const;
 
   // append value to the message

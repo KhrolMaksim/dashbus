@@ -9,6 +9,7 @@ public:
   ~DBusCppClient();
 
   void sendMessage();
+  DBusCppConnection &getConnection();
 
 protected:
   DBusCppConnection mConnection;

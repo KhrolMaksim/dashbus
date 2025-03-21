@@ -15,3 +15,7 @@ void DBusCppClient::sendMessage() {
   DBusCppMessage msg(mName.c_str(), mPath.c_str(), "org.example.MyInterface", "MyMethod");
   DBusCppReplyMessage reply(mConnection, msg);
 }
+
+DBusCppConnection &DBusCppClient::getConnection() {
+  return mConnection;
+}

@@ -8,6 +8,7 @@ common_sources = files([
   'dBusMessage.cpp',
   'dBusClient.cpp',
   'dBusServer.cpp',
+  'dBusCppError.cpp',
 ])
 
 server_sources = files([
@@ -27,4 +28,12 @@ executable('dbus-server',
 
 executable('dbus-client', 
           common_sources + client_sources, 
+          dependencies: [dbus_dep])
+
+executable('simple-sender',
+          'simple_sender.cpp',
+          dependencies: [dbus_dep])
+
+executable('simple-receiver',
+          'simple_receiver.cpp',
           dependencies: [dbus_dep])

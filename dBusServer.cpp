@@ -41,3 +41,7 @@ void DBusCppServer::run() {
     dbus_connection_read_write_dispatch(mConnection.get(), -1);
   }
 }
+
+DBusCppConnection &DBusCppServer::getConnection() {
+  return mConnection;
+}
