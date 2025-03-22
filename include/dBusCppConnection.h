@@ -5,6 +5,7 @@
 #include <thread>
 
 #include <dBusCppError.h>
+#include <dBusCppMessage.h>
 #include <dBusCppServerHandler.h>
 
 enum class DBusNameFlag {
@@ -18,12 +19,19 @@ public:
   DBusCppConnection(DBusBusType busType);
   ~DBusCppConnection();
 
+  static DBusCppConnection createByPointer(DBusConnection *connection);
+
   void requestName(const char *name, DBusNameFlag flags);
   void registerObjectPath(const char *path, DBusCppServerHandler &serverHandler);
   void readWriteDispatch(int timeout);
   std::thread workProcess(int timeout);
 
+  void sendMessage(DBusCppMessage &message);
+
   DBusConnection *get() const;
+
+private:
+  DBusCppConnection();
 
 private:
   DBusConnection *mConnection;

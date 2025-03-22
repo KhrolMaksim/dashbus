@@ -1,16 +1,19 @@
-#include <dbus/dbus.h>
 #include <iostream>
-#include <map>
 
 #include <dBusCppConnection.h>
 #include <dBusCppError.h>
+#include <dBusCppMessage.h>
 #include <dBusCppServerHandler.h>
 
 DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
   DBusCppError err;
   int number;
 
-  if (!dbus_message_get_args(msg, err, DBUS_TYPE_INT32, &number, DBUS_TYPE_INVALID)) {
+  DBusCppMessage incoming = DBusCppMessage::createByPointer(msg);
+
+  try {
+    number = incoming.getArgument<int>();
+  } catch (const std::runtime_error &e) {
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
@@ -18,22 +21,25 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   int result = number * 2;
 
-  DBusMessage *reply = dbus_message_new_method_return(msg);
+  DBusCppMessage reply = DBusCppMessage::createByPointer(dbus_message_new_method_return(msg));
+
   if (reply == NULL) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
-  if (!dbus_message_append_args(reply, DBUS_TYPE_INT32, &result, DBUS_TYPE_INVALID)) {
-    dbus_message_unref(reply);
+  try {
+    reply.appendArgument(result);
+  } catch (const std::runtime_error &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
-  if (!dbus_connection_send(conn, reply, NULL)) {
-    dbus_message_unref(reply);
+  DBusCppConnection connection = DBusCppConnection::createByPointer(conn);
+
+  try {
+    connection.sendMessage(reply);
+  } catch (const std::runtime_error &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
-
-  dbus_connection_flush(conn);
 
   dbus_message_unref(reply);
   return DBUS_HANDLER_RESULT_HANDLED;

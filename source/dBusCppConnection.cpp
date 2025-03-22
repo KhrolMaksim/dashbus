@@ -32,6 +32,14 @@ DBusCppConnection::~DBusCppConnection() {
   dbus_connection_unref(mConnection);
 }
 
+DBusCppConnection DBusCppConnection::createByPointer(DBusConnection *connection) {
+  DBusCppConnection conn;
+
+  conn.mConnection = dbus_connection_ref(connection);
+
+  return conn;
+}
+
 void DBusCppConnection::requestName(const char *name, DBusNameFlag flags) {
   int ret = dbus_bus_request_name(mConnection, name, static_cast<unsigned int>(flags), mError);
 
@@ -64,6 +72,19 @@ std::thread DBusCppConnection::workProcess(int timeout) {
   });
 }
 
+void DBusCppConnection::sendMessage(DBusCppMessage &message) {
+  dbus_bool_t ret = dbus_connection_send(mConnection, message.get(), NULL);
+
+  if (not ret) {
+    throw std::runtime_error("Failed to send message");
+  }
+
+  dbus_connection_flush(mConnection);
+}
+
 DBusConnection *DBusCppConnection::get() const {
   return mConnection;
+}
+
+DBusCppConnection::DBusCppConnection() {
 }
