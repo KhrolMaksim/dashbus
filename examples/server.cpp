@@ -39,56 +39,28 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 
-DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *user_data) {
-  DBusCppServerHandler *serverHandler = static_cast<DBusCppServerHandler *>(user_data);
-
-  const char *iface = dbus_message_get_interface(msg);
-  if (not serverHandler->hasInterface(iface)) {
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-  }
-
-  const char *member = dbus_message_get_member(msg);
-  if (not serverHandler->hasMethod(iface, member)) {
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-  }
-
-  MethodHandler handler = serverHandler->getMethodHandler(iface, member);
-  return handler(conn, msg);
-}
-
 int main() {
-  DBusCppConnection conn(DBUS_BUS_SESSION);
-  DBusCppError err;
-
-  int ret = dbus_bus_request_name(conn.get(), "com.example.MyService",
-                                  DBUS_NAME_FLAG_REPLACE_EXISTING, err);
-  if (err.isSet()) {
-    std::cerr << "Name Error: " << err.getMessage() << std::endl;
-    return 1;
-  }
-  if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-    std::cerr << "Not Primary Owner" << std::endl;
-    return 1;
-  }
-
+  MethodHandlers handlers;
+  handlers["ProcessNumber"] = processNumberHandler;
   DBusCppServerHandler serverHandler;
-  serverHandler.addMethod("com.example.MyInterface", "ProcessNumber", processNumberHandler);
-  serverHandler.addMethod("com.example.MyInterface", "ProcessNumber1", processNumberHandler);
-  serverHandler.addMethod("com.example.MyInterface", "ProcessNumber2", processNumberHandler);
-  serverHandler.addMethod("com.example.MyInterface", "ProcessNumber3", processNumberHandler);
+  serverHandler.addInterface("com.example.MyInterface", handlers);
 
-  DBusObjectPathVTable vtable = {NULL, &handle_message, NULL, NULL, NULL, NULL};
-  if (!dbus_connection_register_object_path(conn.get(), "/com/example/MyObject", &vtable,
-                                            &serverHandler)) {
-    std::cerr << "Cannot register object path" << std::endl;
+  // или так
+  // DBusCppServerHandler serverHandler;
+  // serverHandler.addMethod("com.example.MyInterface", "ProcessNumber", processNumberHandler);
+
+  try {
+    DBusCppConnection conn(DBUS_BUS_SESSION);
+    conn.requestName("com.example.MyService", DBusNameFlag::REPLACE_EXISTING);
+    conn.registerObjectPath("/com/example/MyObject", serverHandler);
+
+    std::cout << "Server is running... (Press Ctrl+C to exit)" << std::endl;
+
+    auto thread = conn.workProcess(1000);
+    thread.join();
+  } catch (const std::runtime_error &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
     return 1;
-  }
-
-  std::cout << "Server is running... (Press Ctrl+C to exit)" << std::endl;
-
-  while (true) {
-    dbus_connection_read_write_dispatch(conn.get(), 1000); // 1000 мс
-    std::cout << "Waiting for messages..." << std::endl;
   }
 
   return 0;
