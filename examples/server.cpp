@@ -6,7 +6,6 @@
 #include <dBusCppServerHandler.h>
 
 DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
-  DBusCppError err;
   int number;
 
   DBusCppMessage incoming = DBusCppMessage::createByPointer(msg);
@@ -41,7 +40,6 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
-  dbus_message_unref(reply);
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 

@@ -11,7 +11,7 @@ DBusCppMessage::DBusCppMessage(const char *service, const char *path, const char
 DBusCppMessage DBusCppMessage::createByPointer(DBusMessage *message) {
   DBusCppMessage msg;
 
-  msg.mMessage = dbus_message_ref(message);
+  msg.mMessage = dbus_message_copy(message);
 
   return msg;
 }
