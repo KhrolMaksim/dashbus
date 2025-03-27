@@ -36,3 +36,8 @@ executable('simple-sender',
 executable('simple-receiver',
           'simple_receiver.cpp',
           dependencies: [dbus_dep])
+
+dbus_cpp_connect_dep = declare_dependency(
+  include_directories: incdir,
+  dependencies: [dbus_dep]
+)
