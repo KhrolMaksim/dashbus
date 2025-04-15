@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *user_data) {
-  DashBus::ServerHandler *serverHandler = static_cast<DashBus::ServerHandler *>(user_data);
+  dashbus::ServerHandler *serverHandler = static_cast<dashbus::ServerHandler *>(user_data);
 
   const char *iface = dbus_message_get_interface(msg);
   if (not serverHandler->hasInterface(iface)) {
@@ -16,11 +16,11 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-  DashBus::MethodHandler handler = serverHandler->getMethodHandler(iface, member);
+  dashbus::MethodHandler handler = serverHandler->getMethodHandler(iface, member);
   return handler(conn, msg);
 }
 
-DashBus::Connection::Connection(DBusBusType busType) {
+dashbus::Connection::Connection(DBusBusType busType) {
   mConnection = dbus_bus_get(busType, mError);
 
   if (mError.isSet()) {
@@ -28,11 +28,11 @@ DashBus::Connection::Connection(DBusBusType busType) {
   }
 }
 
-DashBus::Connection::~Connection() {
+dashbus::Connection::~Connection() {
   dbus_connection_unref(mConnection);
 }
 
-DashBus::Connection DashBus::Connection::createByPointer(DBusConnection *connection) {
+dashbus::Connection dashbus::Connection::createByPointer(DBusConnection *connection) {
   Connection conn;
 
   conn.mConnection = dbus_connection_ref(connection);
@@ -40,7 +40,7 @@ DashBus::Connection DashBus::Connection::createByPointer(DBusConnection *connect
   return conn;
 }
 
-void DashBus::Connection::requestName(const char *name, DBusNameFlag flags) {
+void dashbus::Connection::requestName(const char *name, DBusNameFlag flags) {
   int ret = dbus_bus_request_name(mConnection, name, static_cast<unsigned int>(flags), mError);
 
   if (mError.isSet()) {
@@ -52,18 +52,18 @@ void DashBus::Connection::requestName(const char *name, DBusNameFlag flags) {
   }
 }
 
-void DashBus::Connection::registerObjectPath(const char *path, ServerHandler &serverHandler) {
+void dashbus::Connection::registerObjectPath(const char *path, ServerHandler &serverHandler) {
   DBusObjectPathVTable vtable = {NULL, &handle_message, NULL, NULL, NULL, NULL};
   if (!dbus_connection_register_object_path(mConnection, path, &vtable, &serverHandler)) {
     throw NameRequestException("Failed to register object path");
   }
 }
 
-void DashBus::Connection::readWriteDispatch(int timeout) {
+void dashbus::Connection::readWriteDispatch(int timeout) {
   dbus_connection_read_write_dispatch(mConnection, timeout);
 }
 
-std::thread DashBus::Connection::workProcess(int timeout) {
+std::thread dashbus::Connection::workProcess(int timeout) {
   return std::thread([this, timeout]() {
     while (true) {
       readWriteDispatch(timeout);
@@ -72,7 +72,7 @@ std::thread DashBus::Connection::workProcess(int timeout) {
   });
 }
 
-void DashBus::Connection::sendMessage(Message &message) {
+void dashbus::Connection::sendMessage(Message &message) {
   dbus_bool_t ret = dbus_connection_send(mConnection, message.get(), NULL);
 
   if (not ret) {
@@ -82,9 +82,9 @@ void DashBus::Connection::sendMessage(Message &message) {
   dbus_connection_flush(mConnection);
 }
 
-DBusConnection *DashBus::Connection::get() const {
+DBusConnection *dashbus::Connection::get() const {
   return mConnection;
 }
 
-DashBus::Connection::Connection() {
+dashbus::Connection::Connection() {
 }

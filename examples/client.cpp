@@ -5,7 +5,7 @@
 
 int main() {
   DBusConnection *conn;
-  DashBus::Error err;
+  dashbus::Error err;
   DBusMessage *msg, *reply;
   int number = 42;
   int result;

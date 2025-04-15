@@ -8,7 +8,7 @@
 #include <Message.h>
 #include <ServerHandler.h>
 
-namespace DashBus {
+namespace dashbus {
 enum class DBusNameFlag {
   ALLOW_REPLACEMENT = DBUS_NAME_FLAG_ALLOW_REPLACEMENT,
   REPLACE_EXISTING = DBUS_NAME_FLAG_REPLACE_EXISTING,
@@ -38,4 +38,4 @@ private:
   DBusConnection *mConnection;
   Error mError;
 };
-} // namespace DashBus
+} // namespace dashbus

@@ -6,7 +6,7 @@
 
 #include <Exception.h>
 
-namespace DashBus {
+namespace dashbus {
 class Error {
 public:
   Error();
@@ -77,4 +77,4 @@ public:
 private:
   DBusError mError;
 };
-} // namespace DashBus
+} // namespace dashbus

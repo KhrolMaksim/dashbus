@@ -4,7 +4,7 @@
 
 #include <Exception.h>
 
-namespace DashBus {
+namespace dashbus {
 class Message {
 public:
   Message(const char *service, const char *path, const char *interface, const char *method);
@@ -25,4 +25,4 @@ private:
 private:
   DBusMessage *mMessage;
 };
-} // namespace DashBus
+} // namespace dashbus

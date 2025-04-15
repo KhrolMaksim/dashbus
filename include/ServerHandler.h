@@ -6,7 +6,7 @@
 #include <map>
 #include <mutex>
 
-namespace DashBus {
+namespace dashbus {
 struct CmpStr {
   bool operator()(char const *a, char const *b) const {
     return std::strcmp(a, b) < 0;
@@ -38,4 +38,4 @@ private:
   InterfaceHandlers mInterfaceHandlers;
   mutable std::mutex mHandlersMutex;
 };
-} // namespace DashBus
+} // namespace dashbus
