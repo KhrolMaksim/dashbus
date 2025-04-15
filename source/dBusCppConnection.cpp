@@ -24,7 +24,7 @@ DBusCppConnection::DBusCppConnection(DBusBusType busType) {
   mConnection = dbus_bus_get(busType, mError);
 
   if (mError.isSet()) {
-    throw std::runtime_error(mError.getMessage());
+    throw std::runtime_error(mError.message());
   }
 }
 
@@ -44,7 +44,7 @@ void DBusCppConnection::requestName(const char *name, DBusNameFlag flags) {
   int ret = dbus_bus_request_name(mConnection, name, static_cast<unsigned int>(flags), mError);
 
   if (mError.isSet()) {
-    throw std::runtime_error(mError.getMessage());
+    throw std::runtime_error(mError.message());
   }
 
   if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
