@@ -20,7 +20,8 @@ template <typename T> void dashbus::Message::appendArgument(T value) {
   if constexpr (std::is_same_v<T, int>) {
     dbus_message_append_args(mMessage, DBUS_TYPE_INT32, &value, DBUS_TYPE_INVALID);
   } else if constexpr (std::is_same_v<T, std::string>) {
-    dbus_message_append_args(mMessage, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
+    const char *c_str = value.c_str();
+    dbus_message_append_args(mMessage, DBUS_TYPE_STRING, &c_str, DBUS_TYPE_INVALID);
   } else {
     throw NameRequestException("Unsupported argument type");
   }
@@ -32,7 +33,9 @@ template <typename T> T dashbus::Message::getArgument() const {
   if constexpr (std::is_same_v<T, int>) {
     dbus_message_get_args(mMessage, NULL, DBUS_TYPE_INT32, &value, DBUS_TYPE_INVALID);
   } else if constexpr (std::is_same_v<T, std::string>) {
-    dbus_message_get_args(mMessage, NULL, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
+    const char *c_str;
+    dbus_message_get_args(mMessage, NULL, DBUS_TYPE_STRING, &c_str, DBUS_TYPE_INVALID);
+    value = c_str;
   } else {
     throw NameRequestException("Unsupported argument type");
   }
