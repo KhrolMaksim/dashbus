@@ -1,11 +1,11 @@
 #include <dbus/dbus.h>
 #include <iostream>
 
-#include <dBusCppError.h>
+#include <Error.h>
 
 int main() {
   DBusConnection *conn;
-  DBusCppError err;
+  DashBus::Error err;
   DBusMessage *msg, *reply;
   int number = 42;
   int result;

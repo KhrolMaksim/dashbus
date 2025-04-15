@@ -6,6 +6,7 @@
 #include <map>
 #include <mutex>
 
+namespace DashBus {
 struct CmpStr {
   bool operator()(char const *a, char const *b) const {
     return std::strcmp(a, b) < 0;
@@ -16,10 +17,10 @@ using MethodHandler = DBusHandlerResult (*)(DBusConnection *, DBusMessage *);
 using MethodHandlers = std::map<const char *, MethodHandler, CmpStr>;
 using InterfaceHandlers = std::map<const char *, MethodHandlers, CmpStr>;
 
-class DBusCppServerHandler {
+class ServerHandler {
 public:
-  DBusCppServerHandler();
-  ~DBusCppServerHandler();
+  ServerHandler();
+  ~ServerHandler();
 
   void addInterface(const char *iface, const MethodHandlers &handlers);
   void removeInterface(const char *iface);
@@ -37,3 +38,4 @@ private:
   InterfaceHandlers mInterfaceHandlers;
   mutable std::mutex mHandlersMutex;
 };
+} // namespace DashBus

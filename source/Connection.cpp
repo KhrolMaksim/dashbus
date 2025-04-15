@@ -1,10 +1,10 @@
-#include <dBusCppConnection.h>
+#include <Connection.h>
 
 #include <iostream>
 #include <stdexcept>
 
 DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *user_data) {
-  DBusCppServerHandler *serverHandler = static_cast<DBusCppServerHandler *>(user_data);
+  DashBus::ServerHandler *serverHandler = static_cast<DashBus::ServerHandler *>(user_data);
 
   const char *iface = dbus_message_get_interface(msg);
   if (not serverHandler->hasInterface(iface)) {
@@ -16,54 +16,54 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-  MethodHandler handler = serverHandler->getMethodHandler(iface, member);
+  DashBus::MethodHandler handler = serverHandler->getMethodHandler(iface, member);
   return handler(conn, msg);
 }
 
-DBusCppConnection::DBusCppConnection(DBusBusType busType) {
+DashBus::Connection::Connection(DBusBusType busType) {
   mConnection = dbus_bus_get(busType, mError);
 
   if (mError.isSet()) {
-    throw DBusCppNameRequestException(mError.message());
+    throw NameRequestException(mError.message());
   }
 }
 
-DBusCppConnection::~DBusCppConnection() {
+DashBus::Connection::~Connection() {
   dbus_connection_unref(mConnection);
 }
 
-DBusCppConnection DBusCppConnection::createByPointer(DBusConnection *connection) {
-  DBusCppConnection conn;
+DashBus::Connection DashBus::Connection::createByPointer(DBusConnection *connection) {
+  Connection conn;
 
   conn.mConnection = dbus_connection_ref(connection);
 
   return conn;
 }
 
-void DBusCppConnection::requestName(const char *name, DBusNameFlag flags) {
+void DashBus::Connection::requestName(const char *name, DBusNameFlag flags) {
   int ret = dbus_bus_request_name(mConnection, name, static_cast<unsigned int>(flags), mError);
 
   if (mError.isSet()) {
-    throw DBusCppNameRequestException(mError.message());
+    throw NameRequestException(mError.message());
   }
 
   if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-    throw DBusCppNameRequestException("Failed to request name");
+    throw NameRequestException("Failed to request name");
   }
 }
 
-void DBusCppConnection::registerObjectPath(const char *path, DBusCppServerHandler &serverHandler) {
+void DashBus::Connection::registerObjectPath(const char *path, ServerHandler &serverHandler) {
   DBusObjectPathVTable vtable = {NULL, &handle_message, NULL, NULL, NULL, NULL};
   if (!dbus_connection_register_object_path(mConnection, path, &vtable, &serverHandler)) {
-    throw DBusCppNameRequestException("Failed to register object path");
+    throw NameRequestException("Failed to register object path");
   }
 }
 
-void DBusCppConnection::readWriteDispatch(int timeout) {
+void DashBus::Connection::readWriteDispatch(int timeout) {
   dbus_connection_read_write_dispatch(mConnection, timeout);
 }
 
-std::thread DBusCppConnection::workProcess(int timeout) {
+std::thread DashBus::Connection::workProcess(int timeout) {
   return std::thread([this, timeout]() {
     while (true) {
       readWriteDispatch(timeout);
@@ -72,19 +72,19 @@ std::thread DBusCppConnection::workProcess(int timeout) {
   });
 }
 
-void DBusCppConnection::sendMessage(DBusCppMessage &message) {
+void DashBus::Connection::sendMessage(Message &message) {
   dbus_bool_t ret = dbus_connection_send(mConnection, message.get(), NULL);
 
   if (not ret) {
-    throw DBusCppNameRequestException("Failed to send message");
+    throw NameRequestException("Failed to send message");
   }
 
   dbus_connection_flush(mConnection);
 }
 
-DBusConnection *DBusCppConnection::get() const {
+DBusConnection *DashBus::Connection::get() const {
   return mConnection;
 }
 
-DBusCppConnection::DBusCppConnection() {
+DashBus::Connection::Connection() {
 }

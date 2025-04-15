@@ -2,14 +2,15 @@
 
 #include <dbus/dbus.h>
 
-#include <dBusCppException.h>
+#include <Exception.h>
 
-class DBusCppMessage {
+namespace DashBus {
+class Message {
 public:
-  DBusCppMessage(const char *service, const char *path, const char *interface, const char *method);
-  ~DBusCppMessage();
+  Message(const char *service, const char *path, const char *interface, const char *method);
+  ~Message();
 
-  static DBusCppMessage createByPointer(DBusMessage *message);
+  static Message createByPointer(DBusMessage *message);
 
   template <typename T> void appendArgument(T value);
   template <typename T> T getArgument() const;
@@ -19,8 +20,9 @@ public:
   operator DBusMessage *();
 
 private:
-  DBusCppMessage();
+  Message();
 
 private:
   DBusMessage *mMessage;
 };
+} // namespace DashBus

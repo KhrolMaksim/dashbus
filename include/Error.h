@@ -4,24 +4,25 @@
 
 #include <string>
 
-#include <dBusCppException.h>
+#include <Exception.h>
 
-class DBusCppError {
+namespace DashBus {
+class Error {
 public:
-  DBusCppError();
+  Error();
 
   /// @todo В конечном варианте не должно быть копирующих конструкторов, если только не будет найден
   /// хороший способ проводить это без больших проблем
-  DBusCppError(const DBusCppError &);
+  Error(const Error &);
 
   /// @todo В конечном варианте не должно быть копирующих конструкторов, если только не будет найден
   /// хороший способ проводить это без больших проблем
-  DBusCppError &operator=(const DBusCppError &);
+  Error &operator=(const Error &);
 
-  DBusCppError(DBusCppError &&other) noexcept;
-  DBusCppError &operator=(DBusCppError &&other) noexcept;
+  Error(Error &&other) noexcept;
+  Error &operator=(Error &&other) noexcept;
 
-  ~DBusCppError();
+  ~Error();
 
   /// @brief проверка на наличие ошибки
   /// @return наличие ошибки
@@ -61,7 +62,7 @@ public:
   /// @return константный указатель ошибки
   const DBusError *get() const;
 
-  /// @brief бросает исключение типа DBusCppNameRequestException содержащий
+  /// @brief бросает исключение типа NameRequestException содержащий
   /// сообщение с названием и сообщением DBusError
   void throwIfSet() const;
 
@@ -76,3 +77,4 @@ public:
 private:
   DBusError mError;
 };
+} // namespace DashBus

@@ -1,11 +1,11 @@
-#include <dBusCppError.h>
+#include <Error.h>
 
 /// @brief Класс, описывающий ошибки в работе с dbus
-DBusCppError::DBusCppError() {
+DashBus::Error::Error() {
   dbus_error_init(&mError);
 }
 
-DBusCppError::DBusCppError(const DBusCppError &other) {
+DashBus::Error::Error(const Error &other) {
   dbus_error_init(&mError);
 
   if (other.isSet()) {
@@ -13,7 +13,7 @@ DBusCppError::DBusCppError(const DBusCppError &other) {
   }
 }
 
-DBusCppError &DBusCppError::operator=(const DBusCppError &other) {
+DashBus::Error &DashBus::Error::operator=(const Error &other) {
   if (this != &other) {
     clear();
 
@@ -24,7 +24,7 @@ DBusCppError &DBusCppError::operator=(const DBusCppError &other) {
   return *this;
 }
 
-DBusCppError::DBusCppError(DBusCppError &&other) noexcept {
+DashBus::Error::Error(Error &&other) noexcept {
   dbus_error_init(&mError);
 
   if (other.isSet()) {
@@ -32,7 +32,7 @@ DBusCppError::DBusCppError(DBusCppError &&other) noexcept {
   }
 }
 
-DBusCppError &DBusCppError::operator=(DBusCppError &&other) noexcept {
+DashBus::Error &DashBus::Error::operator=(Error &&other) noexcept {
   if (this != &other) {
     clear();
     if (other.isSet()) {
@@ -42,57 +42,57 @@ DBusCppError &DBusCppError::operator=(DBusCppError &&other) noexcept {
   return *this;
 }
 
-DBusCppError::~DBusCppError() {
+DashBus::Error::~Error() {
   dbus_error_free(&mError);
 }
 
-bool DBusCppError::isSet() const {
+bool DashBus::Error::isSet() const {
   return dbus_error_is_set(&mError);
 }
 
-bool DBusCppError::hasName(const std::string &name) const {
+bool DashBus::Error::hasName(const std::string &name) const {
   return dbus_error_has_name(&mError, name.c_str());
 }
 
-void DBusCppError::set(const std::string &name, const std::string &message) {
+void DashBus::Error::set(const std::string &name, const std::string &message) {
   dbus_set_error(&mError, name.c_str(), "%s", message.c_str());
 }
 
-void DBusCppError::setConst(const std::string &name, const std::string &message) {
+void DashBus::Error::setConst(const std::string &name, const std::string &message) {
   dbus_set_error_const(&mError, name.c_str(), message.c_str());
 }
 
-std::string DBusCppError::message() const {
+std::string DashBus::Error::message() const {
   return isSet() ? mError.message : "";
 }
 
-std::string DBusCppError::name() const {
+std::string DashBus::Error::name() const {
   return isSet() ? mError.name : "";
 }
 
-void DBusCppError::clear() {
+void DashBus::Error::clear() {
   dbus_error_free(&mError);
   dbus_error_init(&mError);
 }
 
-DBusError *DBusCppError::get() {
+DBusError *DashBus::Error::get() {
   return &mError;
 }
 
-const DBusError *DBusCppError::get() const {
+const DBusError *DashBus::Error::get() const {
   return &mError;
 }
 
-void DBusCppError::throwIfSet() const {
+void DashBus::Error::throwIfSet() const {
   if (isSet()) {
-    throw DBusCppNameRequestException("DBus error: " + name() + " - " + message());
+    throw NameRequestException("DBus error: " + name() + " - " + message());
   }
 }
 
-DBusCppError::operator const DBusError *() const {
+DashBus::Error::operator const DBusError *() const {
   return &mError;
 }
 
-DBusCppError::operator DBusError *() {
+DashBus::Error::operator DBusError *() {
   return &mError;
 }

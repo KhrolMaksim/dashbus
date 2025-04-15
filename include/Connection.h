@@ -4,36 +4,38 @@
 
 #include <thread>
 
-#include <dBusCppError.h>
-#include <dBusCppMessage.h>
-#include <dBusCppServerHandler.h>
+#include <Error.h>
+#include <Message.h>
+#include <ServerHandler.h>
 
+namespace DashBus {
 enum class DBusNameFlag {
   ALLOW_REPLACEMENT = DBUS_NAME_FLAG_ALLOW_REPLACEMENT,
   REPLACE_EXISTING = DBUS_NAME_FLAG_REPLACE_EXISTING,
   DO_NOT_QUEUE = DBUS_NAME_FLAG_DO_NOT_QUEUE,
 };
 
-class DBusCppConnection {
+class Connection {
 public:
-  DBusCppConnection(DBusBusType busType);
-  ~DBusCppConnection();
+  Connection(DBusBusType busType);
+  ~Connection();
 
-  static DBusCppConnection createByPointer(DBusConnection *connection);
+  static Connection createByPointer(DBusConnection *connection);
 
   void requestName(const char *name, DBusNameFlag flags);
-  void registerObjectPath(const char *path, DBusCppServerHandler &serverHandler);
+  void registerObjectPath(const char *path, ServerHandler &serverHandler);
   void readWriteDispatch(int timeout);
   std::thread workProcess(int timeout);
 
-  void sendMessage(DBusCppMessage &message);
+  void sendMessage(Message &message);
 
   DBusConnection *get() const;
 
 private:
-  DBusCppConnection();
+  Connection();
 
 private:
   DBusConnection *mConnection;
-  DBusCppError mError;
+  Error mError;
 };
+} // namespace DashBus

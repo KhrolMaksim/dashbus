@@ -1,18 +1,18 @@
 #include <iostream>
 
-#include <dBusCppConnection.h>
-#include <dBusCppError.h>
-#include <dBusCppMessage.h>
-#include <dBusCppServerHandler.h>
+#include <Connection.h>
+#include <Error.h>
+#include <Message.h>
+#include <ServerHandler.h>
 
 DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
   int number;
 
-  DBusCppMessage incoming = DBusCppMessage::createByPointer(msg);
+  DashBus::Message incoming = DashBus::Message::createByPointer(msg);
 
   try {
     number = incoming.getArgument<int>();
-  } catch (const DBusCppNameRequestException &e) {
+  } catch (const DashBus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
@@ -20,7 +20,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   int result = number * 2;
 
-  DBusCppMessage reply = DBusCppMessage::createByPointer(dbus_message_new_method_return(msg));
+  DashBus::Message reply = DashBus::Message::createByPointer(dbus_message_new_method_return(msg));
 
   if (reply == NULL) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
@@ -28,15 +28,15 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   try {
     reply.appendArgument(result);
-  } catch (const DBusCppNameRequestException &e) {
+  } catch (const DashBus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
-  DBusCppConnection connection = DBusCppConnection::createByPointer(conn);
+  DashBus::Connection connection = DashBus::Connection::createByPointer(conn);
 
   try {
     connection.sendMessage(reply);
-  } catch (const DBusCppNameRequestException &e) {
+  } catch (const DashBus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
@@ -44,25 +44,25 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 }
 
 int main() {
-  MethodHandlers handlers;
+  DashBus::MethodHandlers handlers;
   handlers["ProcessNumber"] = processNumberHandler;
-  DBusCppServerHandler serverHandler;
+  DashBus::ServerHandler serverHandler;
   serverHandler.addInterface("com.example.MyInterface", handlers);
 
   // или так
-  // DBusCppServerHandler serverHandler;
+  // ServerHandler serverHandler;
   // serverHandler.addMethod("com.example.MyInterface", "ProcessNumber", processNumberHandler);
 
   try {
-    DBusCppConnection conn(DBUS_BUS_SESSION);
-    conn.requestName("com.example.MyService", DBusNameFlag::REPLACE_EXISTING);
+    DashBus::Connection conn(DBUS_BUS_SESSION);
+    conn.requestName("com.example.MyService", DashBus::DBusNameFlag::REPLACE_EXISTING);
     conn.registerObjectPath("/com/example/MyObject", serverHandler);
 
     std::cout << "Server is running... (Press Ctrl+C to exit)" << std::endl;
 
     auto thread = conn.workProcess(1000);
     thread.join();
-  } catch (const DBusCppNameRequestException &e) {
+  } catch (const DashBus::NameRequestException &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;
   }

@@ -1,6 +1,7 @@
 common_sources += files(
-  'dBusCppConnection.cpp',
-  'dBusCppError.cpp',
-  'dBusCppMessage.cpp',
-  'dBusCppServerHandler.cpp',
+  'Connection.cpp',
+  'Error.cpp',
+  'Exception.cpp',
+  'Message.cpp',
+  'ServerHandler.cpp',
 )
