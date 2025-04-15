@@ -2,6 +2,8 @@
 
 #include <dbus/dbus.h>
 
+#include <dBusCppException.h>
+
 class DBusCppMessage {
 public:
   DBusCppMessage(const char *service, const char *path, const char *interface, const char *method);

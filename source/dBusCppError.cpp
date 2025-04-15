@@ -1,7 +1,5 @@
 #include <dBusCppError.h>
 
-#include <stdexcept>
-
 /// @brief Класс, описывающий ошибки в работе с dbus
 DBusCppError::DBusCppError() {
   dbus_error_init(&mError);
@@ -87,7 +85,7 @@ const DBusError *DBusCppError::get() const {
 
 void DBusCppError::throwIfSet() const {
   if (isSet()) {
-    throw std::runtime_error("DBus error: " + name() + " - " + message());
+    throw DBusCppNameRequestException("DBus error: " + name() + " - " + message());
   }
 }
 

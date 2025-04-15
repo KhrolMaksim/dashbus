@@ -12,7 +12,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   try {
     number = incoming.getArgument<int>();
-  } catch (const std::runtime_error &e) {
+  } catch (const DBusCppNameRequestException &e) {
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
@@ -28,7 +28,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   try {
     reply.appendArgument(result);
-  } catch (const std::runtime_error &e) {
+  } catch (const DBusCppNameRequestException &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
@@ -36,7 +36,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   try {
     connection.sendMessage(reply);
-  } catch (const std::runtime_error &e) {
+  } catch (const DBusCppNameRequestException &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
 
@@ -62,7 +62,7 @@ int main() {
 
     auto thread = conn.workProcess(1000);
     thread.join();
-  } catch (const std::runtime_error &e) {
+  } catch (const DBusCppNameRequestException &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;
   }

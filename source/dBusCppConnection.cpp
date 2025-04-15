@@ -24,7 +24,7 @@ DBusCppConnection::DBusCppConnection(DBusBusType busType) {
   mConnection = dbus_bus_get(busType, mError);
 
   if (mError.isSet()) {
-    throw std::runtime_error(mError.message());
+    throw DBusCppNameRequestException(mError.message());
   }
 }
 
@@ -44,18 +44,18 @@ void DBusCppConnection::requestName(const char *name, DBusNameFlag flags) {
   int ret = dbus_bus_request_name(mConnection, name, static_cast<unsigned int>(flags), mError);
 
   if (mError.isSet()) {
-    throw std::runtime_error(mError.message());
+    throw DBusCppNameRequestException(mError.message());
   }
 
   if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-    throw std::runtime_error("Failed to request name");
+    throw DBusCppNameRequestException("Failed to request name");
   }
 }
 
 void DBusCppConnection::registerObjectPath(const char *path, DBusCppServerHandler &serverHandler) {
   DBusObjectPathVTable vtable = {NULL, &handle_message, NULL, NULL, NULL, NULL};
   if (!dbus_connection_register_object_path(mConnection, path, &vtable, &serverHandler)) {
-    throw std::runtime_error("Failed to register object path");
+    throw DBusCppNameRequestException("Failed to register object path");
   }
 }
 
@@ -76,7 +76,7 @@ void DBusCppConnection::sendMessage(DBusCppMessage &message) {
   dbus_bool_t ret = dbus_connection_send(mConnection, message.get(), NULL);
 
   if (not ret) {
-    throw std::runtime_error("Failed to send message");
+    throw DBusCppNameRequestException("Failed to send message");
   }
 
   dbus_connection_flush(mConnection);

@@ -22,7 +22,7 @@ template <typename T> void DBusCppMessage::appendArgument(T value) {
   } else if constexpr (std::is_same_v<T, std::string>) {
     dbus_message_append_args(mMessage, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
   } else {
-    throw std::runtime_error("Unsupported argument type");
+    throw DBusCppNameRequestException("Unsupported argument type");
   }
 }
 
@@ -34,7 +34,7 @@ template <typename T> T DBusCppMessage::getArgument() const {
   } else if constexpr (std::is_same_v<T, std::string>) {
     dbus_message_get_args(mMessage, NULL, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
   } else {
-    throw std::runtime_error("Unsupported argument type");
+    throw DBusCppNameRequestException("Unsupported argument type");
   }
 
   return value;

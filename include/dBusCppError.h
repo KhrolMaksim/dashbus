@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include <dBusCppException.h>
+
 class DBusCppError {
 public:
   DBusCppError();
@@ -59,7 +61,7 @@ public:
   /// @return константный указатель ошибки
   const DBusError *get() const;
 
-  /// @brief бросает исключение типа std::runtime_error содержащий
+  /// @brief бросает исключение типа DBusCppNameRequestException содержащий
   /// сообщение с названием и сообщением DBusError
   void throwIfSet() const;
 
