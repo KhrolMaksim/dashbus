@@ -6,6 +6,9 @@ build:
 	meson setup builddir
 	meson compile -C builddir
 
+test:
+	cd builddir && meson test
+
 install:
 	cd builddir && ninja install
 
