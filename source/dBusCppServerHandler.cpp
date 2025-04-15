@@ -16,10 +16,12 @@ void DBusCppServerHandler::removeInterface(const char *iface) {
 }
 
 void DBusCppServerHandler::addMethod(const char *iface, const char *method, MethodHandler handler) {
+  std::lock_guard<std::mutex> lock(mHandlersMutex);
   mInterfaceHandlers[iface][method] = handler;
 }
 
 void DBusCppServerHandler::removeMethod(const char *iface, const char *method) {
+  std::lock_guard<std::mutex> lock(mHandlersMutex);
   mInterfaceHandlers[iface].erase(method);
 }
 
@@ -28,6 +30,7 @@ bool DBusCppServerHandler::hasInterface(const char *iface) const {
 }
 
 bool DBusCppServerHandler::hasMethod(const char *iface, const char *method) const {
+  std::lock_guard<std::mutex> lock(mHandlersMutex);
   if (hasInterface(iface)) {
     return mInterfaceHandlers.at(iface).count(method) > 0;
   }

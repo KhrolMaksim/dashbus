@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <map>
+#include <mutex>
 
 struct CmpStr {
   bool operator()(char const *a, char const *b) const {
@@ -34,4 +35,5 @@ public:
 
 private:
   InterfaceHandlers mInterfaceHandlers;
+  mutable std::mutex mHandlersMutex;
 };
