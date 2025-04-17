@@ -1,6 +1,6 @@
 .PHONY: all build install clean
 
-all: clean build install
+all: clean build
 
 build:
 	meson setup builddir
