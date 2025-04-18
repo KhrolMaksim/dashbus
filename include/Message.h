@@ -5,6 +5,8 @@
 #include <Concepts.h>
 #include <Exception.h>
 
+#include "Detail.h"
+
 namespace dashbus {
 class Message {
 public:
@@ -72,20 +74,28 @@ void dashbus::Message::addMessageArgument(DBusMessageIter *msgIter, BaseDBusType
 }
 
 void dashbus::Message::addMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto value) {
-  using CurrentType = decltype(value);
+  using CurrentType = std::decay_t<decltype(value)>;
   if constexpr (Array<CurrentType>) {
+    using ElementType = typename CurrentType::value_type;
+    ElementType fictiveElement;
+
+    std::string elem_sig = detail::getDBusSignature(fictiveElement);
+    const char *elem_sig_c_str = elem_sig.c_str();
+
     DBusMessageIter arrIter;
-    dbus_message_iter_open_container(msgIter, DBUS_TYPE_ARRAY, NULL, &arrIter);
+    dbus_message_iter_open_container(msgIter, DBUS_TYPE_ARRAY, elem_sig_c_str, &arrIter);
+
     for (auto const &elem : value) {
-      Message::addMessageArgument(msgIter, value);
+      Message::addMessageArgument(&arrIter, elem);
     }
+
+    dbus_message_iter_close_container(msgIter, &arrIter);
   } else {
     static_assert(false, "Выполнен вызов addMessageArgument для необработанного CompoundDBusType");
   }
 }
 
 void dashbus::Message::addMessageArgument(DBusMessageIter *msgIter, StructDBusType auto value) {
-  // using CurrentType = decltype(value);
   DBusMessageIter structIter;
   dbus_message_iter_open_container(msgIter, DBUS_TYPE_STRUCT, NULL, &structIter);
 
@@ -132,16 +142,26 @@ void dashbus::Message::getMessageArgument(DBusMessageIter *msgIter, BaseDBusType
 }
 
 void dashbus::Message::getMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto &value) {
-  using Type = decltype(value);
-  using ElementType = typename Type::value_type;
-  DBusMessageIter subIter;
-  dbus_message_iter_recurse(msgIter, &subIter);
+  using Type = std::decay_t<decltype(value)>;
+  if constexpr (Array<Type>) {
+    using ElementType = typename Type::value_type;
 
-  while (dbus_message_iter_get_arg_type(&subIter) != DBUS_TYPE_INVALID) {
-    ElementType elem;
-    getMessageArgument<ElementType>(&subIter, elem);
-    value.push_back(elem);
-    dbus_message_iter_next(&subIter);
+    DBusMessageIter subIter;
+    dbus_message_iter_recurse(msgIter, &subIter);
+
+    value.clear();
+
+    while (dbus_message_iter_get_arg_type(&subIter) != DBUS_TYPE_INVALID) {
+      ElementType elem;
+      Message::getMessageArgument(&subIter, elem);
+      value.push_back(std::move(elem));
+      // Сдвигом после элементов возложено на сами элементы
+      // dbus_message_iter_next(&subIter);
+    }
+
+    dbus_message_iter_next(msgIter);
+  } else {
+    static_assert(false, "Unsupported CompoundDBusType");
   }
 }
 
@@ -149,7 +169,7 @@ void dashbus::Message::getMessageArgument(DBusMessageIter *msgIter, StructDBusTy
   DBusMessageIter structIter;
   dbus_message_iter_recurse(msgIter, &structIter);
 
-  auto addMessageArgumentTuple = [&structIter, &msgIter](auto &&...args) {
+  auto addMessageArgumentTuple = [&structIter](auto &&...args) {
     (Message::getMessageArgument(&structIter, args), ...);
   };
 
