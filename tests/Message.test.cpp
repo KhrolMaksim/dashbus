@@ -3,6 +3,22 @@
 
 #include <Message.h>
 
+class A {
+public:
+  auto getFieldsRef() {
+    return std::tie(num, fNum, name, flag1, flag2);
+  }
+  auto getFieldsRef() const {
+    return std::tie(num, fNum, name, flag1, flag2);
+  }
+
+  int num = 0;
+  double fNum = 0.0;
+  std::string name;
+  bool flag1 = false;
+  bool flag2 = false;
+};
+
 TEST_CASE("Message") {
   dashbus::Message msg("com.example", "/path", "com.example.Interface", "Method");
 
