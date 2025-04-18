@@ -43,4 +43,4 @@ executable('simple-sender', 'simple_sender.cpp', dependencies: [dbus_dep])
 
 executable('simple-receiver', 'simple_receiver.cpp', dependencies: [dbus_dep])
 
-desh_bus_dep = declare_dependency(include_directories: incdir, dependencies: [dbus_dep])
+dash_bus_dep = declare_dependency(include_directories: incdir, dependencies: [dbus_dep])
