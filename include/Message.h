@@ -96,11 +96,8 @@ void dashbus::Message::addMessageArgument(DBusMessageIter *msgIter, CompoundDBus
 }
 
 void dashbus::Message::addMessageArgument(DBusMessageIter *msgIter, StructDBusType auto value) {
-  std::string struct_sig = detail::getDBusSignature(value);
-  const char *struct_sig_c_str = struct_sig.c_str();
-
   DBusMessageIter structIter;
-  dbus_message_iter_open_container(msgIter, DBUS_TYPE_STRUCT, struct_sig_c_str, &structIter);
+  dbus_message_iter_open_container(msgIter, DBUS_TYPE_STRUCT, NULL, &structIter);
 
   auto addMessageArgumentTuple = [&structIter](auto &&...args) {
     (Message::addMessageArgument(&structIter, args), ...);
