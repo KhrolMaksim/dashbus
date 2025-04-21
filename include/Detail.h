@@ -49,8 +49,10 @@ std::string getDBusSignature(String auto &value) {
   return DBUS_TYPE_STRING_AS_STRING;
 }
 
+std::string getDBusSignature(ClassOrStruct auto &value);
+
 std::string getDBusSignature(Array auto &value) {
-  using ElementType = std::decay_t<decltype(value[0])>;
+  using ElementType = typename std::decay_t<decltype(value)>::value_type;
   ElementType temp;
   std::string result = DBUS_TYPE_ARRAY_AS_STRING;
   result += getDBusSignature(temp);
@@ -62,9 +64,7 @@ std::string getDBusSignature(ClassOrStruct auto &value) {
   auto fields = value.getFieldsRef();
 
   auto processField = [&](auto &&field) {
-    using FieldType = std::decay_t<decltype(field)>;
-    FieldType temp;
-    signature += getDBusSignature(temp);
+    signature += getDBusSignature(field);
   };
 
   std::apply([&](auto &&...fields) { (processField(fields), ...); }, fields);
