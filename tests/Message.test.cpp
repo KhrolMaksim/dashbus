@@ -176,3 +176,61 @@ TEST_CASE("Message") {
     CHECK(b1.flag2 == b2.flag2);
   }
 }
+
+TEST_CASE("Copy test") {
+  SUBCASE("Одиночное копирование") {
+    dashbus::Message first("service_name.test", "/path", "interface.test", "method");
+    dashbus::Message second = dashbus::Message::createByPointer(first.get());
+
+    CHECK(first.get() != nullptr);
+    CHECK(second.get() != nullptr);
+  }
+
+  SUBCASE("Двойное копирование") {
+    dashbus::Message first("service_name.test", "/path", "interface.test", "method");
+    dashbus::Message second = dashbus::Message::createByPointer(first.get());
+    dashbus::Message thread = dashbus::Message::createByPointer(first.get());
+
+    CHECK(first.get() != nullptr);
+    CHECK(second.get() != nullptr);
+    CHECK(thread.get() != nullptr);
+  }
+
+  SUBCASE("Двойное каскадное") {
+    dashbus::Message first("service_name.test", "/path", "interface.test", "method");
+    dashbus::Message second = dashbus::Message::createByPointer(first.get());
+    dashbus::Message thread = dashbus::Message::createByPointer(second.get());
+
+    CHECK(first.get() != nullptr);
+    CHECK(second.get() != nullptr);
+    CHECK(thread.get() != nullptr);
+  }
+
+  SUBCASE("Массивное") {
+    dashbus::Message m0("service_name.test", "/path", "interface.test", "method");
+    dashbus::Message m1 = dashbus::Message::createByPointer(m0.get());
+    dashbus::Message m2 = dashbus::Message::createByPointer(m1.get());
+    dashbus::Message m3 = dashbus::Message::createByPointer(m1.get());
+    dashbus::Message m4 = dashbus::Message::createByPointer(m3.get());
+    dashbus::Message m5 = dashbus::Message::createByPointer(m3.get());
+    dashbus::Message m6 = dashbus::Message::createByPointer(m4.get());
+    dashbus::Message m7 = dashbus::Message::createByPointer(m0.get());
+    dashbus::Message m8 = dashbus::Message::createByPointer(m2.get());
+    dashbus::Message m9 = dashbus::Message::createByPointer(m8.get());
+    dashbus::Message m10 = dashbus::Message::createByPointer(m3.get());
+    dashbus::Message m11 = dashbus::Message::createByPointer(m0.get());
+
+    CHECK(m0.get() != nullptr);
+    CHECK(m1.get() != nullptr);
+    CHECK(m2.get() != nullptr);
+    CHECK(m3.get() != nullptr);
+    CHECK(m4.get() != nullptr);
+    CHECK(m5.get() != nullptr);
+    CHECK(m6.get() != nullptr);
+    CHECK(m7.get() != nullptr);
+    CHECK(m8.get() != nullptr);
+    CHECK(m9.get() != nullptr);
+    CHECK(m10.get() != nullptr);
+    CHECK(m11.get() != nullptr);
+  }
+}
