@@ -143,6 +143,14 @@ Message Message::getReturnMessage() {
   return message;
 }
 
+uint32_t Message::getSerial() const {
+  if (not mMessage) {
+    throw Exception("Cannot get serial from null message");
+  }
+
+  return dbus_message_get_serial(mMessage);
+}
+
 Message::Message() {
 }
 

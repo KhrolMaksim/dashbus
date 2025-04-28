@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <dbus/dbus.h>
 
 #include <Concepts.h>
@@ -149,6 +150,13 @@ public:
    * @throws Exception если сообщение не инициализировано
    */
   Message getReturnMessage();
+
+  /**
+   * @brief Возвращает серийный номер сообщения
+   * @return Серийный номер сообщения
+   * @throws Exception если сообщение не инициализировано
+   */
+  uint32_t getSerial() const;
 
   friend class Connection;
 
