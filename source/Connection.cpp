@@ -22,10 +22,6 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
 
 dashbus::Connection::Connection(DBusBusType busType) {
   mConnection = dbus_bus_get(busType, mError);
-
-  if (mError.isSet()) {
-    throw NameRequestException(mError.message());
-  }
 }
 
 dashbus::Connection::~Connection() {
@@ -43,19 +39,16 @@ dashbus::Connection dashbus::Connection::createByPointer(DBusConnection *connect
 void dashbus::Connection::requestName(const char *name, DBusNameFlag flags) {
   int ret = dbus_bus_request_name(mConnection, name, static_cast<unsigned int>(flags), mError);
 
-  if (mError.isSet()) {
-    throw NameRequestException(mError.message());
-  }
-
-  if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-    throw NameRequestException("Failed to request name");
+  if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER and not mError.isSet()) {
+    mError.set("requestName", "Failed to request name");
   }
 }
 
 void dashbus::Connection::registerObjectPath(const char *path, ServerHandler &serverHandler) {
   DBusObjectPathVTable vtable = {NULL, &handle_message, NULL, NULL, NULL, NULL};
-  if (!dbus_connection_register_object_path(mConnection, path, &vtable, &serverHandler)) {
-    throw NameRequestException("Failed to register object path");
+  if (!dbus_connection_register_object_path(mConnection, path, &vtable, &serverHandler) and
+      not mError.isSet()) {
+    mError.set("registerObjectPath", "Failed to register object path");
   }
 }
 
@@ -75,8 +68,8 @@ std::thread dashbus::Connection::workProcess(int timeout) {
 void dashbus::Connection::sendMessage(Message &message) {
   dbus_bool_t ret = dbus_connection_send(mConnection, message.get(), NULL);
 
-  if (not ret) {
-    throw NameRequestException("Failed to send message");
+  if (not ret and not mError.isSet()) {
+    mError.set("sendMessage", "Failed to send message");
   }
 
   dbus_connection_flush(mConnection);
