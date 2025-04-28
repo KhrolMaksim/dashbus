@@ -52,13 +52,17 @@ dashbus::Message::Message(const char *path, const char *interface, const char *n
 dashbus::Message dashbus::Message::createByPointer(DBusMessage *message) {
   Message msg;
 
-  msg.mMessage = dbus_message_copy(message);
+  if (message != NULL) {
+    msg.mMessage = dbus_message_copy(message);
+  }
 
   return msg;
 }
 
 dashbus::Message::~Message() {
-  dbus_message_unref(mMessage);
+  if (mMessage != NULL) {
+    dbus_message_unref(mMessage);
+  }
 }
 
 DBusMessage *dashbus::Message::get() const {
