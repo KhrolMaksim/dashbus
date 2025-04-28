@@ -13,7 +13,10 @@ struct CmpStr {
   }
 };
 
-using MethodHandler = DBusHandlerResult (*)(DBusConnection *, DBusMessage *);
+class Connection;
+class Message;
+
+using MethodHandler = DBusHandlerResult (*)(Connection &, Message &);
 using MethodHandlers = std::map<const char *, MethodHandler, CmpStr>;
 using InterfaceHandlers = std::map<const char *, MethodHandlers, CmpStr>;
 

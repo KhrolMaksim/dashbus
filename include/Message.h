@@ -22,10 +22,15 @@ private:
   bool isInit = false;
 };
 
+class Connect;
+
 class Message {
 public:
   Message(const char *service, const char *path, const char *interface, const char *method);
+  Message(const char *path, const char *interface, const char *name);
   ~Message();
+
+  enum class Type { UNDEFINED, METHOD, METHOD_REPLY, SIGNAL };
 
   static Message createByPointer(DBusMessage *message);
 
@@ -37,11 +42,15 @@ public:
   void startReadArguments();
   void addArgument(DBusArgument auto value);
   void getArgument(DBusArgument auto &value);
-
   int getArgumentType();
+
+  Message getReturnMessage();
+
+  friend class Connection;
 
 private:
   Message();
+  Type mType = Type::UNDEFINED;
 
   static void addMessageArgument(DBusMessageIter *msgIter, BaseDBusType auto value);
   static void addMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto value);

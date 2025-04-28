@@ -5,13 +5,11 @@
 #include <Message.h>
 #include <ServerHandler.h>
 
-DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
+DBusHandlerResult processNumberHandler(dashbus::Connection &connection, dashbus::Message &message) {
   int number;
 
-  dashbus::Message incoming = dashbus::Message::createByPointer(msg);
-
   try {
-    incoming.getArgument(number);
+    message.getArgument(number);
   } catch (const dashbus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
@@ -20,7 +18,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
 
   int result = number * 2;
 
-  dashbus::Message reply = dashbus::Message::createByPointer(dbus_message_new_method_return(msg));
+  dashbus::Message reply = message.getReturnMessage();
 
   if (reply == NULL) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
@@ -31,8 +29,6 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
   } catch (const dashbus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
-
-  dashbus::Connection connection = dashbus::Connection::createByPointer(conn);
 
   try {
     connection.sendMessage(reply);

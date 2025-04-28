@@ -33,6 +33,12 @@ dashbus::MessageIter::operator DBusMessageIter *() {
 dashbus::Message::Message(const char *service, const char *path, const char *interface,
                           const char *method) {
   mMessage = dbus_message_new_method_call(service, path, interface, method);
+  mType = Type::METHOD;
+}
+
+dashbus::Message::Message(const char *path, const char *interface, const char *name) {
+  mMessage = dbus_message_new_signal(path, interface, name);
+  mType = Type::SIGNAL;
 }
 
 dashbus::Message dashbus::Message::createByPointer(DBusMessage *message) {
@@ -69,6 +75,14 @@ void dashbus::Message::startReadArguments() {
 
 int dashbus::Message::getArgumentType() {
   return dbus_message_iter_get_arg_type(mReadIter);
+}
+
+dashbus::Message dashbus::Message::getReturnMessage() {
+  Message message;
+  message.mMessage = dbus_message_new_method_return(mMessage);
+  message.mType = Type::METHOD_REPLY;
+
+  return message;
 }
 
 dashbus::Message::Message() {

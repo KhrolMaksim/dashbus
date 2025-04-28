@@ -3,7 +3,7 @@
 
 #include <ServerHandler.h>
 
-DBusHandlerResult mockHandler(DBusConnection *, DBusMessage *) {
+DBusHandlerResult mockHandler(dashbus::Connection &, dashbus::Message &) {
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 

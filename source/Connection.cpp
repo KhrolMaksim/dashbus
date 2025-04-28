@@ -17,7 +17,14 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
   }
 
   dashbus::MethodHandler handler = serverHandler->getMethodHandler(iface, member);
-  return handler(conn, msg);
+
+  dashbus::Connection connection = dashbus::Connection::createByPointer(conn);
+  dbus_connection_unref(conn);
+
+  dashbus::Message message = dashbus::Message::createByPointer(msg);
+  dbus_message_unref(msg);
+
+  return handler(connection, message);
 }
 
 dashbus::Connection::Connection(DBusBusType busType) {
@@ -80,6 +87,8 @@ dashbus::Message dashbus::Connection::sendMessage(Message &message, int timeout)
       dbus_connection_send_with_reply_and_block(mConnection, message.get(), timeout, NULL);
 
   Message msg = Message::createByPointer(ret);
+  msg.mType = Message::Type::METHOD_REPLY;
+
   dbus_message_unref(ret);
 
   return msg;
