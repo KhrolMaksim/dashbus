@@ -50,6 +50,8 @@ Message::Message(const char *service, const char *path, const char *interface, c
     throw Exception("Failed to create method call message");
   }
 
+  dbus_message_set_serial(mMessage, 1);
+
   mType = Type::METHOD;
 }
 
@@ -62,6 +64,8 @@ Message::Message(const char *path, const char *interface, const char *name) {
   if (not mMessage) {
     throw Exception("Failed to create signal message");
   }
+
+  dbus_message_set_serial(mMessage, 1);
 
   mType = Type::SIGNAL;
 }
@@ -139,7 +143,13 @@ Message Message::getReturnMessage() {
   }
 
   message.mType = Type::METHOD_REPLY;
-  dbus_message_set_reply_serial(message.mMessage, dbus_message_get_serial(mMessage));
+
+  dbus_uint32_t serial = dbus_message_get_serial(mMessage);
+  if (serial == 0) {
+    serial = 1;
+  }
+
+  dbus_message_set_reply_serial(message.mMessage, serial);
 
   return message;
 }
