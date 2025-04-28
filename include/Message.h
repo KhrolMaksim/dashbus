@@ -22,8 +22,6 @@ private:
   bool isInit = false;
 };
 
-class Connect;
-
 class Message {
 public:
   Message(const char *service, const char *path, const char *interface, const char *method);

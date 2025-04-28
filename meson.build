@@ -18,6 +18,15 @@ client_sources = files(
   'examples/client.cpp',
 )
 
+# Собираем библиотеку
+dash_bus_lib = library(
+  'dash_bus',
+  common_sources,
+  include_directories: include_directories('include'),
+  dependencies: [dependency('dbus-1')],
+  # install: true,
+)
+
 dbus_dep = dependency('dbus-1')
 incdir = include_directories('include')
 doctest = dependency('doctest')
@@ -43,4 +52,8 @@ executable('simple-sender', 'simple_sender.cpp', dependencies: [dbus_dep])
 
 executable('simple-receiver', 'simple_receiver.cpp', dependencies: [dbus_dep])
 
-dash_bus_dep = declare_dependency(include_directories: incdir, dependencies: [dbus_dep])
+dash_bus_dep = declare_dependency(
+  include_directories: incdir,
+  link_with: dash_bus_lib,
+  dependencies: [dbus_dep]
+)
