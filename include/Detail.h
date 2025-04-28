@@ -63,9 +63,7 @@ std::string getDBusSignature(ClassOrStruct auto &value) {
   std::string signature = "(";
   auto fields = value.getFieldsRef();
 
-  auto processField = [&](auto &&field) {
-    signature += getDBusSignature(field);
-  };
+  auto processField = [&](auto &&field) { signature += getDBusSignature(field); };
 
   std::apply([&](auto &&...fields) { (processField(fields), ...); }, fields);
 
