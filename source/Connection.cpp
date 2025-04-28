@@ -82,6 +82,16 @@ void dashbus::Connection::sendMessage(Message &message) {
   dbus_connection_flush(mConnection);
 }
 
+dashbus::Message dashbus::Connection::sendMessage(Message &message, int timeout) {
+  DBusMessage *ret =
+      dbus_connection_send_with_reply_and_block(mConnection, message.get(), timeout, NULL);
+
+  Message msg = Message::createByPointer(ret);
+  dbus_message_unref(ret);
+
+  return msg;
+}
+
 DBusConnection *dashbus::Connection::get() const {
   return mConnection;
 }

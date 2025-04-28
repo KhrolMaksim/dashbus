@@ -28,6 +28,7 @@ public:
   std::thread workProcess(int timeout);
 
   void sendMessage(Message &message);
+  Message sendMessage(Message &message, int timeout);
 
   DBusConnection *get() const;
 

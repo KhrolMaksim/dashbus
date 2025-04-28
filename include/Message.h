@@ -8,6 +8,20 @@
 #include "Detail.h"
 
 namespace dashbus {
+
+class Message;
+struct MessageIter {
+  bool initWriteIter(Message &);
+  bool initReadIter(Message &);
+
+  operator bool();
+  operator DBusMessageIter *();
+
+private:
+  DBusMessageIter iter;
+  bool isInit = false;
+};
+
 class Message {
 public:
   Message(const char *service, const char *path, const char *interface, const char *method);
@@ -19,27 +33,46 @@ public:
   operator const DBusMessage *() const;
   operator DBusMessage *();
 
-  /// @todo сделать private
-  static void addMessageArgument(DBusMessageIter *msgIter, BaseDBusType auto value);
-  /// @todo сделать private
-  static void addMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto value);
-  /// @todo сделать private
-  static void addMessageArgument(DBusMessageIter *msgIter, StructDBusType auto value);
+  void startWriteArguments();
+  void startReadArguments();
+  void addArgument(DBusArgument auto value);
+  void getArgument(DBusArgument auto &value);
 
-  /// @todo сделать private
-  static void getMessageArgument(DBusMessageIter *msgIter, BaseDBusType auto &value);
-  /// @todo сделать private
-  static void getMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto &value);
-  /// @todo сделать private
-  static void getMessageArgument(DBusMessageIter *msgIter, StructDBusType auto &value);
+  int getArgumentType();
 
 private:
   Message();
 
+  static void addMessageArgument(DBusMessageIter *msgIter, BaseDBusType auto value);
+  static void addMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto value);
+  static void addMessageArgument(DBusMessageIter *msgIter, StructDBusType auto value);
+
+  static void getMessageArgument(DBusMessageIter *msgIter, BaseDBusType auto &value);
+  static void getMessageArgument(DBusMessageIter *msgIter, CompoundDBusType auto &value);
+  static void getMessageArgument(DBusMessageIter *msgIter, StructDBusType auto &value);
+
 private:
-  DBusMessage *mMessage;
+  DBusMessage *mMessage = nullptr;
+  MessageIter mReadIter;
+  MessageIter mWriteIter;
 };
 } // namespace dashbus
+
+void dashbus::Message::addArgument(DBusArgument auto value) {
+  if (not mWriteIter) {
+    startWriteArguments();
+  }
+
+  dashbus::Message::addMessageArgument(mWriteIter, value);
+}
+
+void dashbus::Message::getArgument(DBusArgument auto &value) {
+  if (not mReadIter) {
+    startReadArguments();
+  }
+
+  dashbus::Message::getMessageArgument(mReadIter, value);
+}
 
 void dashbus::Message::addMessageArgument(DBusMessageIter *msgIter, BaseDBusType auto value) {
   using CurrentType = std::decay_t<decltype(value)>;

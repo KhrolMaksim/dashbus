@@ -120,4 +120,7 @@ concept CompoundDBusType = Array<T> or Variant<T>;
 
 template <typename T>
 concept StructDBusType = ClassOrStruct<T>;
+
+template <typename T>
+concept DBusArgument = BaseDBusType<T> or CompoundDBusType<T> or StructDBusType<T>;
 } // namespace dashbus

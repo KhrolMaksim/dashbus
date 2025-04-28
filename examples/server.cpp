@@ -11,9 +11,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
   dashbus::Message incoming = dashbus::Message::createByPointer(msg);
 
   try {
-    DBusMessageIter iter;
-    dbus_message_iter_init(incoming.get(), &iter);
-    dashbus::Message::getMessageArgument(&iter, number);
+    incoming.getArgument(number);
   } catch (const dashbus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
@@ -29,9 +27,7 @@ DBusHandlerResult processNumberHandler(DBusConnection *conn, DBusMessage *msg) {
   }
 
   try {
-    DBusMessageIter iter;
-    dbus_message_iter_init_append(reply.get(), &iter);
-    dashbus::Message::addMessageArgument(&iter, result);
+    reply.addArgument(result);
   } catch (const dashbus::NameRequestException &e) {
     return DBUS_HANDLER_RESULT_NEED_MEMORY;
   }
