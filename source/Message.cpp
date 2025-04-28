@@ -1,6 +1,8 @@
 #include <Message.h>
 
-bool dashbus::MessageIter::initWriteIter(dashbus::Message &message) {
+namespace dashbus {
+
+bool MessageIter::initWriteIter(Message &message) {
   if (isInit) {
     return false;
   }
@@ -15,7 +17,7 @@ bool dashbus::MessageIter::initWriteIter(dashbus::Message &message) {
   return true;
 }
 
-bool dashbus::MessageIter::initReadIter(dashbus::Message &message) {
+bool MessageIter::initReadIter(Message &message) {
   if (isInit) {
     return false;
   }
@@ -30,62 +32,94 @@ bool dashbus::MessageIter::initReadIter(dashbus::Message &message) {
   return true;
 }
 
-dashbus::MessageIter::operator bool() {
+MessageIter::operator bool() {
   return isInit;
 }
 
-dashbus::MessageIter::operator DBusMessageIter *() {
+MessageIter::operator DBusMessageIter *() {
   return &iter;
 }
 
-dashbus::Message::Message(const char *service, const char *path, const char *interface,
-                          const char *method) {
+Message::Message(const char *service, const char *path, const char *interface, const char *method) {
+  if (not service or not path or not interface or not method) {
+    throw Exception("Cannot create message with null parameters");
+  }
+
   mMessage = dbus_message_new_method_call(service, path, interface, method);
+  if (not mMessage) {
+    throw Exception("Failed to create method call message");
+  }
+
   mType = Type::METHOD;
 }
 
-dashbus::Message::Message(const char *path, const char *interface, const char *name) {
+Message::Message(const char *path, const char *interface, const char *name) {
+  if (not path or not interface or not name) {
+    throw Exception("Cannot create message with null parameters");
+  }
+
   mMessage = dbus_message_new_signal(path, interface, name);
+  if (not mMessage) {
+    throw Exception("Failed to create signal message");
+  }
+
   mType = Type::SIGNAL;
 }
 
-dashbus::Message dashbus::Message::createByPointer(DBusMessage *message) {
-  Message msg;
+Message Message::createByPointer(DBusMessage *message) {
+  if (not message) {
+    throw Exception("Cannot create Message from null pointer");
+  }
 
-  if (message != NULL) {
-    msg.mMessage = dbus_message_copy(message);
+  Message msg;
+  msg.mMessage = dbus_message_copy(message);
+
+  if (not msg.mMessage) {
+    throw Exception("Failed to copy message");
   }
 
   return msg;
 }
 
-dashbus::Message::~Message() {
+Message::~Message() {
   if (mMessage != NULL) {
     dbus_message_unref(mMessage);
   }
 }
 
-DBusMessage *dashbus::Message::get() const {
+DBusMessage *Message::get() const {
   return mMessage;
 }
 
-dashbus::Message::operator const DBusMessage *() const {
+Message::operator const DBusMessage *() const {
   return mMessage;
 }
 
-dashbus::Message::operator DBusMessage *() {
+Message::operator DBusMessage *() {
   return mMessage;
 }
 
-void dashbus::Message::startWriteArguments() {
+void Message::startWriteArguments() {
+  if (not mMessage) {
+    throw Exception("Cannot start write arguments on null message");
+  }
+
   mWriteIter.initWriteIter(*this);
 }
 
-void dashbus::Message::startReadArguments() {
+void Message::startReadArguments() {
+  if (not mMessage) {
+    throw Exception("Cannot start read arguments on null message");
+  }
+
   mReadIter.initReadIter(*this);
 }
 
-int dashbus::Message::getArgumentType() {
+int Message::getArgumentType() {
+  if (not mMessage) {
+    throw Exception("Cannot get argument type from null message");
+  }
+
   if (not mReadIter) {
     startReadArguments();
   }
@@ -93,13 +127,23 @@ int dashbus::Message::getArgumentType() {
   return dbus_message_iter_get_arg_type(mReadIter);
 }
 
-dashbus::Message dashbus::Message::getReturnMessage() {
+Message Message::getReturnMessage() {
+  if (not mMessage) {
+    throw Exception("Cannot create return message from null message");
+  }
+
   Message message;
   message.mMessage = dbus_message_new_method_return(mMessage);
+  if (not message.mMessage) {
+    throw Exception("Failed to create method return message");
+  }
+
   message.mType = Type::METHOD_REPLY;
 
   return message;
 }
 
-dashbus::Message::Message() {
+Message::Message() {
 }
+
+} // namespace dashbus
