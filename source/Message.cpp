@@ -139,6 +139,7 @@ Message Message::getReturnMessage() {
   }
 
   message.mType = Type::METHOD_REPLY;
+  dbus_message_set_reply_serial(message.mMessage, dbus_message_get_serial(mMessage));
 
   return message;
 }
