@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <dbus/dbus.h>
 
 #include <Concepts.h>
@@ -156,7 +155,14 @@ public:
    * @return Серийный номер сообщения
    * @throws Exception если сообщение не инициализировано
    */
-  uint32_t getSerial() const;
+  dbus_uint32_t getSerial() const;
+
+  /**
+   * @brief Устанавливает серийный номер сообщения
+   * @param serial Серийный номер для установки
+   * @throws Exception если сообщение не инициализировано
+   */
+  void setSerial(dbus_uint32_t serial);
 
   friend class Connection;
 

@@ -143,12 +143,20 @@ Message Message::getReturnMessage() {
   return message;
 }
 
-uint32_t Message::getSerial() const {
+dbus_uint32_t Message::getSerial() const {
   if (not mMessage) {
     throw Exception("Cannot get serial from null message");
   }
 
   return dbus_message_get_serial(mMessage);
+}
+
+void Message::setSerial(dbus_uint32_t serial) {
+  if (not mMessage) {
+    throw Exception("Cannot set serial on null message");
+  }
+
+  dbus_message_set_serial(mMessage, serial);
 }
 
 Message::Message() {
