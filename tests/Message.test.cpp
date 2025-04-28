@@ -39,12 +39,10 @@ public:
 
 TEST_CASE("Добавление и получение int") {
   dashbus::Message msg("com.example", "/path", "com.example.Interface", "Method");
-  msg.startWriteArguments();
 
   msg.addArgument(42);
 
   int res;
-  msg.startReadArguments();
   msg.getArgument(res);
 
   CHECK(res == 42);
@@ -52,12 +50,10 @@ TEST_CASE("Добавление и получение int") {
 
 TEST_CASE("Добавление и получение string") {
   dashbus::Message msg("com.example", "/path", "com.example.Interface", "Method");
-  msg.startWriteArguments();
 
   msg.addArgument(std::string("hello"));
 
   std::string res;
-  msg.startReadArguments();
   msg.getArgument(res);
 
   CHECK(res == "hello");
@@ -65,7 +61,6 @@ TEST_CASE("Добавление и получение string") {
 
 TEST_CASE("Добавление и получение класса A") {
   dashbus::Message msg("com.example", "/path", "com.example.Interface", "Method");
-  msg.startWriteArguments();
 
   A a1;
   a1.num = 40;
@@ -77,7 +72,6 @@ TEST_CASE("Добавление и получение класса A") {
 
   msg.addArgument(a1);
 
-  msg.startReadArguments();
   CHECK(msg.getArgumentType() == DBUS_TYPE_STRUCT);
 
   A a2;
@@ -97,7 +91,6 @@ TEST_CASE("Добавление и получение класса A") {
 
 TEST_CASE("Добавление и получение класса B") {
   dashbus::Message msg("com.example", "/path", "com.example.Interface", "Method");
-  msg.startWriteArguments();
 
   B b1;
 
@@ -136,7 +129,6 @@ TEST_CASE("Добавление и получение класса B") {
 
   msg.addArgument(b1);
 
-  msg.startReadArguments();
   CHECK(msg.getArgumentType() == DBUS_TYPE_STRUCT);
 
   B b2;

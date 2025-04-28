@@ -21,6 +21,10 @@ DBusHandlerResult handle_message(DBusConnection *conn, DBusMessage *msg, void *u
   dashbus::Connection connection = dashbus::Connection::createByPointer(conn);
   dbus_connection_unref(conn);
 
+  if (msg == NULL) {
+    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+  }
+
   dashbus::Message message = dashbus::Message::createByPointer(msg);
   dbus_message_unref(msg);
 
@@ -89,7 +93,9 @@ dashbus::Message dashbus::Connection::sendMessage(Message &message, int timeout)
   Message msg = Message::createByPointer(ret);
   msg.mType = Message::Type::METHOD_REPLY;
 
-  dbus_message_unref(ret);
+  if (ret != NULL) {
+    dbus_message_unref(ret);
+  }
 
   return msg;
 }

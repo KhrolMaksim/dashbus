@@ -5,6 +5,10 @@ bool dashbus::MessageIter::initWriteIter(dashbus::Message &message) {
     return false;
   }
 
+  if (message.get() == NULL) {
+    return false;
+  }
+
   dbus_message_iter_init_append(message, &iter);
   isInit = true;
 
@@ -13,6 +17,10 @@ bool dashbus::MessageIter::initWriteIter(dashbus::Message &message) {
 
 bool dashbus::MessageIter::initReadIter(dashbus::Message &message) {
   if (isInit) {
+    return false;
+  }
+
+  if (message.get() == NULL) {
     return false;
   }
 
@@ -66,14 +74,18 @@ dashbus::Message::operator DBusMessage *() {
 }
 
 void dashbus::Message::startWriteArguments() {
-  dbus_message_iter_init_append(mMessage, mWriteIter);
+  mWriteIter.initWriteIter(*this);
 }
 
 void dashbus::Message::startReadArguments() {
-  dbus_message_iter_init(mMessage, mReadIter);
+  mReadIter.initReadIter(*this);
 }
 
 int dashbus::Message::getArgumentType() {
+  if (not mReadIter) {
+    startReadArguments();
+  }
+
   return dbus_message_iter_get_arg_type(mReadIter);
 }
 
