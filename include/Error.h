@@ -7,74 +7,114 @@
 #include <Exception.h>
 
 namespace dashbus {
+
+/**
+ * @brief Класс для работы с ошибками DBus.
+ *
+ * Инкапсулирует DBusError, предоставляя безопасный интерфейс C++.
+ */
 class Error {
 public:
+  /**
+   * @brief Конструктор по умолчанию. Инициализирует внутреннюю ошибку.
+   */
   Error();
 
-  /// @todo В конечном варианте не должно быть копирующих конструкторов, если только не будет найден
-  /// хороший способ проводить это без больших проблем
+  /**
+   * @brief Конструктор копирования.
+   */
   Error(const Error &);
 
-  /// @todo В конечном варианте не должно быть копирующих конструкторов, если только не будет найден
-  /// хороший способ проводить это без больших проблем
+  /**
+   * @brief Оператор присваивания.
+   */
   Error &operator=(const Error &);
 
+  /**
+   * @brief Конструктор перемещения.
+   * @param other Объект Error, из которого перемещается ошибка.
+   */
   Error(Error &&other) noexcept;
+
+  /**
+   * @brief Оператор перемещения.
+   * @param other Объект Error, из которого перемещается ошибка.
+   * @return Ссылка на текущий объект.
+   */
   Error &operator=(Error &&other) noexcept;
 
+  /**
+   * @brief Деструктор. Освобождает ресурсы DBusError.
+   */
   ~Error();
 
-  /// @brief проверка на наличие ошибки
-  /// @return наличие ошибки
+  /**
+   * @brief Проверяет, установлена ли ошибка.
+   * @return true, если ошибка установлена.
+   */
   bool isSet() const;
 
-  /// @brief проверка на наличие ошибки по имени
-  /// @param name проверяемое имя
-  /// @return наличие ошибки
+  /**
+   * @brief Проверяет, совпадает ли имя ошибки с заданным.
+   * @param name Имя для проверки.
+   * @return true, если имя совпадает и ошибка установлена.
+   */
   bool hasName(const std::string &name) const;
 
-  /// @brief установка ошибки
-  /// @param name имя ошибки
-  /// @param message сообщение ошибки
+  /**
+   * @brief Устанавливает ошибку с копированием строк.
+   * @param name Имя ошибки.
+   * @param message Сообщение ошибки.
+   */
   void set(const std::string &name, const std::string &message);
 
-  /// @brief установка ошибки
-  /// @param name имя ошибки
-  /// @param message сообщение ошибки
+  /**
+   * @brief Устанавливает ошибку без копирования строк (для литералов).
+   * @param name Имя ошибки.
+   * @param message Сообщение ошибки.
+   */
   void setConst(const std::string &name, const std::string &message);
 
-  /// @brief получить сообщение ошибки
-  /// @return сообщение ошибки
+  /**
+   * @brief Возвращает сообщение ошибки.
+   * @return Сообщение или пустая строка, если ошибки нет.
+   */
   std::string message() const;
 
-  /// @brief получить имя ошибки
-  /// @return имя ошибки
+  /**
+   * @brief Возвращает имя ошибки.
+   * @return Имя или пустая строка, если ошибки нет.
+   */
   std::string name() const;
 
-  /// @brief очистка ошибки (сброс)
+  /**
+   * @brief Сбрасывает ошибку в начальное состояние.
+   */
   void clear();
 
-  /// @brief получение DBusError (сырой указатель ошибки)
-  /// @return указатель ошибки
-  DBusError *get();
+  /**
+   * @brief Возвращает указатель на DBusError.
+   * @return Указатель на ошибку или nullptr, если ошибка не установлена.
+   */
+  DBusError *get() noexcept;
 
-  /// @brief получение DBusError (константный сырой указатель ошибки)
-  /// @return константный указатель ошибки
-  const DBusError *get() const;
+  /**
+   * @brief Возвращает константный указатель на DBusError.
+   * @return Константный указатель на ошибку или nullptr, если ошибка не установлена.
+   */
+  const DBusError *get() const noexcept;
 
-  /// @brief бросает исключение типа NameRequestException содержащий
-  /// сообщение с названием и сообщением DBusError
+  /**
+   * @brief Бросает исключение NameRequestException, если ошибка установлена.
+   * @throws NameRequestException Содержит имя и сообщение ошибки.
+   */
   void throwIfSet() const;
 
-  /// @brief Преобразование в DBusError
-  /// @todo В конечном варианте не должно быть неявных преобразований в базовые примитивы dbus
-  operator const DBusError *() const;
-
-  /// @brief Преобразование в DBusError*
-  /// @todo В конечном варианте не должно быть неявных преобразований в базовые примитивы dbus
-  operator DBusError *();
-
 private:
+  /**
+   * @brief Внутренний объект ошибки DBus.
+   */
   DBusError mError;
 };
+
 } // namespace dashbus
