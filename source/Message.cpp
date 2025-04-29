@@ -50,8 +50,6 @@ Message::Message(const char *service, const char *path, const char *interface, c
     throw Exception("Failed to create method call message");
   }
 
-  dbus_message_set_serial(mMessage, 1);
-
   mType = Type::METHOD;
 }
 
@@ -65,8 +63,6 @@ Message::Message(const char *path, const char *interface, const char *name) {
     throw Exception("Failed to create signal message");
   }
 
-  dbus_message_set_serial(mMessage, 1);
-
   mType = Type::SIGNAL;
 }
 
@@ -76,11 +72,7 @@ Message Message::createByPointer(DBusMessage *message) {
   }
 
   Message msg;
-  msg.mMessage = dbus_message_copy(message);
-
-  if (not msg.mMessage) {
-    throw Exception("Failed to copy message");
-  }
+  msg.mMessage = dbus_message_ref(message);
 
   return msg;
 }
@@ -144,30 +136,7 @@ Message Message::getReturnMessage() {
 
   message.mType = Type::METHOD_REPLY;
 
-  dbus_uint32_t serial = dbus_message_get_serial(mMessage);
-  if (serial == 0) {
-    serial = 1;
-  }
-
-  dbus_message_set_reply_serial(message.mMessage, serial);
-
   return message;
-}
-
-dbus_uint32_t Message::getSerial() const {
-  if (not mMessage) {
-    throw Exception("Cannot get serial from null message");
-  }
-
-  return dbus_message_get_serial(mMessage);
-}
-
-void Message::setSerial(dbus_uint32_t serial) {
-  if (not mMessage) {
-    throw Exception("Cannot set serial on null message");
-  }
-
-  dbus_message_set_serial(mMessage, serial);
 }
 
 Message::Message() {

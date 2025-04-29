@@ -58,10 +58,6 @@ Connection Connection::createByPointer(DBusConnection *connection) {
   Connection conn;
   conn.mConnection = dbus_connection_ref(connection);
 
-  if (not conn.mConnection) {
-    throw Exception("Failed to reference connection");
-  }
-
   return conn;
 }
 

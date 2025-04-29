@@ -150,20 +150,6 @@ public:
    */
   Message getReturnMessage();
 
-  /**
-   * @brief Возвращает серийный номер сообщения
-   * @return Серийный номер сообщения
-   * @throws Exception если сообщение не инициализировано
-   */
-  dbus_uint32_t getSerial() const;
-
-  /**
-   * @brief Устанавливает серийный номер сообщения
-   * @param serial Серийный номер для установки
-   * @throws Exception если сообщение не инициализировано
-   */
-  void setSerial(dbus_uint32_t serial);
-
   friend class Connection;
 
 private:
